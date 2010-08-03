@@ -123,5 +123,68 @@
 		public function clearClient($index) {
 			unset($this->_socket[$index], $this->_client[$index]);
 		}
+		
+		/**
+		 * Daemon::stopInstance($pid_file)
+		 *
+		 * Send SIGQUIT to process with PID saved on $pid_file
+		 *
+		 * @param	string	$pid_file	PID file path
+		 * @return	boolean			Success
+		 **/
+		public static function stopInstance($pid_file) {
+			if (file_exists($pid_file) && posix_access($pid_file, POSIX_R_OK | POSIX_W_OK)) {
+				$pid = file_get_contents($pid_file);
+				if ($pid > 0) {
+					posix_kill($pid, SIGQUIT);
+					@unlink($pid_file);
+						
+					return true;
+				}
+			}
+			return false;
+		}
+		
+		/**
+		 * Daemon::daemonize($pid_file)
+		 *
+		 * Daemonizes script and saves PID to $pid_file.
+		 * It returns:
+		 * 	'running'	If there is a process running with $pid_file PID
+		 *	'error'		If an error ocurred with fork() or setsid()
+		 *	'parent'	Successfull fork, this will be returned to parent (you should just exit)
+		 *	'daemon'	Successfull fork, this will be returned to the child (the actual daemon)
+		 *
+		 * @param	string	$pid_file	PID file path
+		 * @return	string			Daemonize status (check description)
+		 **/
+		public static function daemonize($pid_file) {
+			// check if $pid_file has a valid PID
+			if (file_exists($pid_file) && posix_access($pid_file, POSIX_R_OK | POSIX_W_OK)) {
+				$pid = file_get_contents($pid_file);
+				if ($pid > 0) {
+					if (@posix_kill((double) $pid, SIGALRM)) {
+						return 'running';
+					}
+				}
+			}
+			
+			// fork..
+			$pid = pcntl_fork();
+			if ($pid < 0) {
+				return 'error';
+			} elseif ($pid) {
+				return 'parent';
+			} else {
+				// detach from parent..
+				$sid = posix_setsid();
+				if ($sid < 0) return 'error';
+				
+				// save PID
+				file_put_contents($pid_file, posix_getpid());
+				
+				return 'daemon';
+			}
+		}
 	}
 ?>
