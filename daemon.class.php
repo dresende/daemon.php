@@ -120,8 +120,13 @@
 		 *
 		 * Clear client trace. This is usually called by a client to close the connection.
 		 **/
-		public function clearClient($index) {
+		public function closeClient($index) {
+			stream_socket_shutdown($this->_socket[$index], STREAM_SHUT_RDWR);
+			fclose($this->_socket[$index]);
 			unset($this->_socket[$index], $this->_client[$index]);
+			
+			$this->_socket = array_values($this->_socket);
+			$this->_client = array_values($this->_client);
 		}
 		
 		/**
