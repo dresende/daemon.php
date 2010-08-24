@@ -130,6 +130,17 @@
 		}
 		
 		/**
+		 * Daemon::closeServer()
+		 *
+		 * Close all sockets.
+		 **/
+		public function closeServer() {
+			while (count($this->_socket) > 0) {
+				$this->closeClient(count($this->_socket) - 1);
+			}
+		}
+		
+		/**
 		 * Daemon::stopInstance($pid_file)
 		 *
 		 * Send SIGQUIT to process with PID saved on $pid_file
