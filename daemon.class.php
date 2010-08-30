@@ -69,14 +69,7 @@
 							$client = &$this->_client[$i];
 
 							$message = @fread($socket, 1024);
-							if ($message === false || !strlen($message)) {
-								try {
-									@$client->close();
-									unset($this->_socket[$i], $this->_client[$i]);
-								} catch (Exception $e) {
-									// ignore it..
-								}
-							} else {
+							if ($message !== false && strlen($message)) {
 								$client->process($message);
 							}
 						}
