@@ -167,13 +167,15 @@
 		 * @param	string	$pid_file	PID file path
 		 * @return	string			Daemonize status (check description)
 		 **/
-		public static function daemonize($pid_file) {
+		public static function daemonize($pid_file = null) {
 			// check if $pid_file has a valid PID
-			if (file_exists($pid_file) && posix_access($pid_file, POSIX_R_OK | POSIX_W_OK)) {
-				$pid = file_get_contents($pid_file);
-				if ($pid > 0) {
-					if (@posix_kill((double) $pid, SIGALRM)) {
-						return 'running';
+			if ($pid_file !== null) {
+				if (file_exists($pid_file) && posix_access($pid_file, POSIX_R_OK | POSIX_W_OK)) {
+					$pid = file_get_contents($pid_file);
+					if ($pid > 0) {
+						if (@posix_kill((double) $pid, SIGALRM)) {
+							return 'running';
+						}
 					}
 				}
 			}
