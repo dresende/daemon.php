@@ -192,7 +192,8 @@
 				if ($sid < 0) return 'error';
 				
 				// save PID
-				file_put_contents($pid_file, posix_getpid());
+				if ($pid_file !== null)
+					file_put_contents($pid_file, posix_getpid());
 				
 				return 'daemon';
 			}
