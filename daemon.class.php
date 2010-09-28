@@ -71,6 +71,13 @@
 							$message = @fread($socket, 1024);
 							if ($message !== false && strlen($message)) {
 								$client->process($message);
+							} else {
+								// zombie clients (this avoids busy waiting bug)
+								$data = stream_get_meta_data($socket);
+								if ($data['eof']) {
+									$this->closeClient($i);
+									usleep(500000);
+								}
 							}
 						}
 					}
