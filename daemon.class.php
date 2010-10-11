@@ -202,6 +202,10 @@
 				if ($pid_file !== null)
 					file_put_contents($pid_file, posix_getpid());
 				
+				// close resources (if runned using php exec(), this will ensure it does not hung
+				if (is_resource(STDOUT)) fclose(STDOUT);
+				if (is_resource(STDERR)) fclose(STDERR);
+				
 				return 'daemon';
 			}
 		}
